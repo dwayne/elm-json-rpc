@@ -13,6 +13,7 @@ suite : Test
 suite =
     describe "JsonRpc.Request"
         [ requestSuite
+        , notificationSuite
         ]
 
 
@@ -29,7 +30,7 @@ requestSuite =
                     |> expectRequestObject
                         { method = "currentTime"
                         , maybeParams = Nothing
-                        , id = 1
+                        , maybeId = Just 1
                         }
         , test "example 2" <|
             \_ ->
@@ -44,7 +45,7 @@ requestSuite =
                     |> expectRequestObject
                         { method = "negate"
                         , maybeParams = Just [ 1 ]
-                        , id = 2
+                        , maybeId = Just 2
                         }
         , test "example 3" <|
             \_ ->
@@ -59,7 +60,45 @@ requestSuite =
                     |> expectRequestObject
                         { method = "subtract"
                         , maybeParams = Just [ 10, 2 ]
-                        , id = 3
+                        , maybeId = Just 3
+                        }
+        ]
+
+
+notificationSuite : Test
+notificationSuite =
+    describe "notification"
+        [ test "example 1" <|
+            \_ ->
+                let
+                    notification =
+                        Request.notification "foobar" Nothing
+                in
+                notification
+                    |> expectRequestObject
+                        { method = "foobar"
+                        , maybeParams = Nothing
+                        , maybeId = Nothing
+                        }
+        , test "example 2" <|
+            \_ ->
+                let
+                    notification =
+                        Request.notification "update" (Just params)
+
+                    params =
+                        Params.byPosition (JE.int 1)
+                            [ JE.int 2
+                            , JE.int 3
+                            , JE.int 4
+                            , JE.int 5
+                            ]
+                in
+                notification
+                    |> expectRequestObject
+                        { method = "update"
+                        , maybeParams = Just [ 1, 2, 3, 4, 5 ]
+                        , maybeId = Nothing
                         }
         ]
 
@@ -67,7 +106,7 @@ requestSuite =
 type alias RequestObject =
     { method : String
     , maybeParams : Maybe (List Int)
-    , id : Int
+    , maybeId : Maybe Int
     }
 
 
@@ -80,7 +119,7 @@ requestObjectDecoder =
                     JD.map3 RequestObject
                         (JD.field "method" JD.string)
                         (JD.maybe <| JD.field "params" <| JD.list JD.int)
-                        (JD.field "id" JD.int)
+                        (JD.maybe <| JD.field "id" JD.int)
 
                 else
                     JD.fail "jsonrpc MUST be exactly \"2.0\""
@@ -88,7 +127,7 @@ requestObjectDecoder =
 
 
 expectRequestObject : RequestObject -> Request -> Expectation
-expectRequestObject { method, maybeParams, id } request =
+expectRequestObject { method, maybeParams, maybeId } request =
     let
         result =
             request
@@ -100,7 +139,7 @@ expectRequestObject { method, maybeParams, id } request =
             Expect.all
                 [ .method >> Expect.equal method
                 , .maybeParams >> Expect.equal maybeParams
-                , .id >> Expect.equal id
+                , .maybeId >> Expect.equal maybeId
                 ]
                 requestObject
 
