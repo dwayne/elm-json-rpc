@@ -7,7 +7,7 @@ import JsonRpc.Version as Version
 
 
 type alias Response data answer =
-    { outcome : Result (Error data) answer
+    { result : Result (Error data) answer
     , id : Id
     }
 
@@ -19,7 +19,7 @@ decoder dataDecoder answerDecoder =
             (\s ->
                 if s == Version.version then
                     JD.map2 Response
-                        (outcomeDecoder dataDecoder answerDecoder)
+                        (resultDecoder dataDecoder answerDecoder)
                         (JD.field "id" Id.decoder)
 
                 else
@@ -27,27 +27,27 @@ decoder dataDecoder answerDecoder =
             )
 
 
-outcomeDecoder : JD.Decoder data -> JD.Decoder answer -> JD.Decoder (Result (Error data) answer)
-outcomeDecoder dataDecoder answerDecoder =
-    JD.field "result" (JD.succeed True)
+resultDecoder : JD.Decoder data -> JD.Decoder answer -> JD.Decoder (Result (Error data) answer)
+resultDecoder dataDecoder answerDecoder =
+    JD.maybe (JD.field "result" (JD.succeed ()))
         |> JD.andThen
-            (\hasResult ->
-                JD.field "error" (JD.succeed True)
+            (\maybeResult ->
+                JD.maybe (JD.field "error" (JD.succeed ()))
                     |> JD.andThen
-                        (\hasError ->
-                            case ( hasResult, hasError ) of
-                                ( True, False ) ->
+                        (\maybeError ->
+                            case ( maybeResult, maybeError ) of
+                                ( Just (), Nothing ) ->
                                     JD.map Ok
                                         (JD.field "result" answerDecoder)
 
-                                ( False, True ) ->
+                                ( Nothing, Just () ) ->
                                     JD.map Err
                                         (JD.field "error" <| Error.decoder dataDecoder)
 
-                                ( True, True ) ->
+                                ( Just (), Just () ) ->
                                     JD.fail "both result and error MUST NOT be included"
 
-                                ( False, False ) ->
+                                ( Nothing, Nothing ) ->
                                     JD.fail "either the result or error MUST be included"
                         )
             )

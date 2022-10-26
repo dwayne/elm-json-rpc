@@ -1,4 +1,10 @@
-module JsonRpc.Response.Id exposing (Id, decoder)
+module JsonRpc.Response.Id exposing
+    ( Id
+    , decoder
+    , int
+    , null
+    , string
+    )
 
 import Json.Decode as JD
 
@@ -7,6 +13,21 @@ type Id
     = String String
     | Int Int
     | Null
+
+
+string : String -> Id
+string =
+    String
+
+
+int : Int -> Id
+int =
+    Int
+
+
+null : Id
+null =
+    Null
 
 
 decoder : JD.Decoder Id
