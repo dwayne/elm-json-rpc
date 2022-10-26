@@ -1,6 +1,5 @@
 module JsonRpc.Response.Id exposing (Id, decoder)
 
-
 import Json.Decode as JD
 
 

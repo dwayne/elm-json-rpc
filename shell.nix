@@ -8,4 +8,9 @@ pkgs.mkShell {
     pkgs.elmPackages.elm-format
     pkgs.elmPackages.elm-test
   ];
+
+  shellHook = ''
+    export project="$PWD"
+    export PATH="$project/bin:$PATH"
+  '';
 }

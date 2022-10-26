@@ -6,7 +6,6 @@ module JsonRpc.Response.Error exposing
     , toErrorObject
     )
 
-
 import Json.Decode as JD
 
 
@@ -39,18 +38,25 @@ decoder dataDecoder =
         toKind code =
             if code == parseErrorCode then
                 ParseError
+
             else if code == invalidRequestCode then
                 InvalidRequest
+
             else if code == methodNotFoundCode then
                 MethodNotFound
+
             else if code == invalidParamsCode then
                 InvalidParams
+
             else if code == internalErrorCode then
                 InternalError
+
             else if isServerErrorCode code then
                 ServerError
+
             else if isReservedErrorCode code then
                 ReservedError
+
             else
                 ApplicationError
     in
