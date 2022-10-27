@@ -1,4 +1,9 @@
-module JsonRpc.Request exposing (Request, encode, notification, request)
+module JsonRpc.Request exposing
+    ( Request
+    , encode
+    , notification
+    , request
+    )
 
 import Json.Encode as JE
 import JsonRpc.Request.Id as Id exposing (Id)
@@ -9,29 +14,29 @@ import JsonRpc.Version as Version
 type Request
     = Request
         { method : String
-        , maybeParams : Maybe Params
+        , params : Params
         , id : Id
         }
     | Notification
         { method : String
-        , maybeParams : Maybe Params
+        , params : Params
         }
 
 
-request : String -> Maybe Params -> Id -> Request
-request method maybeParams id =
+request : String -> Params -> Id -> Request
+request method params id =
     Request
         { method = method
-        , maybeParams = maybeParams
+        , params = params
         , id = id
         }
 
 
-notification : String -> Maybe Params -> Request
-notification method maybeParams =
+notification : String -> Params -> Request
+notification method params =
     Notification
         { method = method
-        , maybeParams = maybeParams
+        , params = params
         }
 
 
@@ -39,26 +44,19 @@ encode : Request -> JE.Value
 encode req =
     let
         jsonrpc =
-            Just ( "jsonrpc", Version.encode )
-
-        toParamsField params =
-            ( "params", Params.encode params )
-
-        list =
-            case req of
-                Request { method, maybeParams, id } ->
-                    [ jsonrpc
-                    , Just ( "method", JE.string method )
-                    , Maybe.map toParamsField maybeParams
-                    , Just ( "id", Id.encode id )
-                    ]
-
-                Notification { method, maybeParams } ->
-                    [ jsonrpc
-                    , Just ( "method", JE.string method )
-                    , Maybe.map toParamsField maybeParams
-                    ]
+            ( "jsonrpc", Version.encode )
     in
-    list
-        |> List.filterMap identity
-        |> JE.object
+    JE.object <|
+        case req of
+            Request { method, params, id } ->
+                [ jsonrpc
+                , ( "method", JE.string method )
+                , ( "params", Params.encode params )
+                , ( "id", Id.encode id )
+                ]
+
+            Notification { method, params } ->
+                [ jsonrpc
+                , ( "method", JE.string method )
+                , ( "params", Params.encode params )
+                ]

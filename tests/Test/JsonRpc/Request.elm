@@ -24,42 +24,42 @@ requestSuite =
             \_ ->
                 let
                     request =
-                        Request.request "currentTime" Nothing (Id.int 1)
+                        Request.request "currentTime" Params.empty (Id.int 1)
                 in
                 request
                     |> expectRequestObject
                         { method = "currentTime"
-                        , maybeParams = Nothing
+                        , params = []
                         , maybeId = Just 1
                         }
         , test "example 2" <|
             \_ ->
                 let
                     request =
-                        Request.request "negate" (Just params) (Id.int 2)
+                        Request.request "negate" params (Id.int 2)
 
                     params =
-                        Params.byPosition (JE.int 1) []
+                        Params.byPosition [ JE.int 1 ]
                 in
                 request
                     |> expectRequestObject
                         { method = "negate"
-                        , maybeParams = Just [ 1 ]
+                        , params = [ 1 ]
                         , maybeId = Just 2
                         }
         , test "example 3" <|
             \_ ->
                 let
                     request =
-                        Request.request "subtract" (Just params) (Id.int 3)
+                        Request.request "subtract" params (Id.int 3)
 
                     params =
-                        Params.byPosition (JE.int 10) [ JE.int 2 ]
+                        Params.byPosition [ JE.int 10, JE.int 2 ]
                 in
                 request
                     |> expectRequestObject
                         { method = "subtract"
-                        , maybeParams = Just [ 10, 2 ]
+                        , params = [ 10, 2 ]
                         , maybeId = Just 3
                         }
         ]
@@ -72,23 +72,24 @@ notificationSuite =
             \_ ->
                 let
                     notification =
-                        Request.notification "foobar" Nothing
+                        Request.notification "foobar" Params.empty
                 in
                 notification
                     |> expectRequestObject
                         { method = "foobar"
-                        , maybeParams = Nothing
+                        , params = []
                         , maybeId = Nothing
                         }
         , test "example 2" <|
             \_ ->
                 let
                     notification =
-                        Request.notification "update" (Just params)
+                        Request.notification "update" params
 
                     params =
-                        Params.byPosition (JE.int 1)
-                            [ JE.int 2
+                        Params.byPosition
+                            [ JE.int 1
+                            , JE.int 2
                             , JE.int 3
                             , JE.int 4
                             , JE.int 5
@@ -97,7 +98,7 @@ notificationSuite =
                 notification
                     |> expectRequestObject
                         { method = "update"
-                        , maybeParams = Just [ 1, 2, 3, 4, 5 ]
+                        , params = [ 1, 2, 3, 4, 5 ]
                         , maybeId = Nothing
                         }
         ]
@@ -105,7 +106,7 @@ notificationSuite =
 
 type alias RequestObject =
     { method : String
-    , maybeParams : Maybe (List Int)
+    , params : List Int
     , maybeId : Maybe Int
     }
 
@@ -118,7 +119,7 @@ requestObjectDecoder =
                 if s == "2.0" then
                     JD.map3 RequestObject
                         (JD.field "method" JD.string)
-                        (JD.maybe <| JD.field "params" <| JD.list JD.int)
+                        (JD.field "params" <| JD.list JD.int)
                         (JD.maybe <| JD.field "id" JD.int)
 
                 else
@@ -127,7 +128,7 @@ requestObjectDecoder =
 
 
 expectRequestObject : RequestObject -> Request -> Expectation
-expectRequestObject { method, maybeParams, maybeId } request =
+expectRequestObject { method, params, maybeId } request =
     let
         result =
             request
@@ -138,7 +139,7 @@ expectRequestObject { method, maybeParams, maybeId } request =
         Ok requestObject ->
             Expect.all
                 [ .method >> Expect.equal method
-                , .maybeParams >> Expect.equal maybeParams
+                , .params >> Expect.equal params
                 , .maybeId >> Expect.equal maybeId
                 ]
                 requestObject

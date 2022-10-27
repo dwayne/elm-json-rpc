@@ -3,6 +3,7 @@ module JsonRpc.Request.Params exposing
     , Params
     , byName
     , byPosition
+    , empty
     , encode
     )
 
@@ -18,9 +19,14 @@ type alias Param =
     JE.Value
 
 
-byPosition : Param -> List Param -> Params
-byPosition first rest =
-    Array <| first :: rest
+empty : Params
+empty =
+    Array []
+
+
+byPosition : List Param -> Params
+byPosition =
+    Array
 
 
 byName : ( String, Param ) -> List ( String, Param ) -> Params
