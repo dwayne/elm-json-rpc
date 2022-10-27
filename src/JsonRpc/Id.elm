@@ -1,4 +1,4 @@
-module JsonRpc.Response.Id exposing
+module JsonRpc.Id exposing
     ( Id
     , decoder
     , int
@@ -10,19 +10,19 @@ import Json.Decode as JD
 
 
 type Id
-    = String String
-    | Int Int
+    = Int Int
+    | String String
     | Null
-
-
-string : String -> Id
-string =
-    String
 
 
 int : Int -> Id
 int =
     Int
+
+
+string : String -> Id
+string =
+    String
 
 
 null : Id
@@ -33,7 +33,7 @@ null =
 decoder : JD.Decoder Id
 decoder =
     JD.oneOf
-        [ JD.map String JD.string
-        , JD.map Int JD.int
+        [ JD.map Int JD.int
+        , JD.map String JD.string
         , JD.null Null
         ]

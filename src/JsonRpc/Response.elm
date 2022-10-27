@@ -1,8 +1,8 @@
 module JsonRpc.Response exposing (Response, decoder)
 
 import Json.Decode as JD
+import JsonRpc.Id as Id exposing (Id)
 import JsonRpc.Response.Error as Error exposing (Error)
-import JsonRpc.Response.Id as Id exposing (Id)
 import JsonRpc.Version as Version
 
 
