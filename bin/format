@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-elm-format "$project/src" "$project/tests" --yes
+elm-format                \
+  "$project/examples/src" \
+  "$project/src"          \
+  "$project/tests"        \
+  --yes
