@@ -1,4 +1,4 @@
-module Ethereum.Eth.GetBalance exposing (request)
+module Ethereum.Eth.GetBalance exposing (Options, request)
 
 import Ethereum.Data.Address as Address exposing (Address)
 import Ethereum.Data.Block as Block exposing (Block)
@@ -10,24 +10,18 @@ import JsonRpc.Transport.Http exposing (Request)
 
 type alias Options =
     { address : Address
-
-    -- FIXME:
-    --
-    -- The spec says that this parameter is optional yet when I don't send it
-    -- along the response is an error.
-    , maybeBlock : Maybe Block
+    , block : Block
     }
 
 
 request : Options -> Request JE.Value String
-request { address, maybeBlock } =
+request { address, block } =
     { method = "eth_getBalance"
     , params =
-        [ Just <| Address.encode address
-        , Maybe.map Block.encode maybeBlock
-        ]
-            |> List.filterMap identity
-            |> Params.byPosition
+        Params.byPosition
+            [ Address.encode address
+            , Block.encode block
+            ]
     , dataDecoder = JD.value
     , answerDecoder = JD.string
     }

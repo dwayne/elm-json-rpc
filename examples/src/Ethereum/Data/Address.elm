@@ -2,7 +2,6 @@ module Ethereum.Data.Address exposing
     ( Address
     , encode
     , fromString
-    , genesis
     )
 
 import Ethereum.Lib.Parser as P
@@ -12,11 +11,6 @@ import Parser as P exposing ((|.), (|=), Parser)
 
 type Address
     = Address String
-
-
-genesis : Address
-genesis =
-    Address "0x0000000000000000000000000000000000000000"
 
 
 fromString : String -> Maybe Address

@@ -1,4 +1,4 @@
-module Example1 exposing (main)
+module Ethereum exposing (main)
 
 import Browser
 import Ethereum.Data.Address as Address
@@ -6,6 +6,7 @@ import Ethereum.Data.Block as Block
 import Ethereum.Eth.ChainId as EthChainId
 import Ethereum.Eth.GetBalance as EthGetBalance
 import Html as H
+import Html.Attributes as HA
 import Html.Events as HE
 import Json.Encode as JE
 import JsonRpc.Transport.Http as JsonRpcHttp
@@ -21,20 +22,21 @@ main =
         }
 
 
-url : String
-url =
-    "https://rpc.flashbots.net/"
-
-
 type alias Model =
-    { maybeChainId : Maybe String
+    { rpcUrl : String
+    , address : String
+    , block : String
+    , maybeChainId : Maybe String
     , maybeBalance : Maybe String
     }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { maybeChainId = Nothing
+    ( { rpcUrl = ""
+      , address = ""
+      , block = ""
+      , maybeChainId = Nothing
       , maybeBalance = Nothing
       }
     , Cmd.none
@@ -42,7 +44,10 @@ init _ =
 
 
 type Msg
-    = ClickedGetChainId
+    = EnteredRpcUrl String
+    | EnteredAddress String
+    | EnteredBlock String
+    | ClickedGetChainId
     | GotChainId (Result (JsonRpcHttp.Error JE.Value) String)
     | ClickedGetBalance
     | GotBalance (Result (JsonRpcHttp.Error JE.Value) String)
@@ -51,9 +56,27 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        EnteredRpcUrl rpcUrl ->
+            ( { model | rpcUrl = rpcUrl }
+            , Cmd.none
+            )
+
+        EnteredAddress address ->
+            ( { model | address = address }
+            , Cmd.none
+            )
+
+        EnteredBlock block ->
+            ( { model | block = block }
+            , Cmd.none
+            )
+
         ClickedGetChainId ->
             ( model
-            , JsonRpcHttp.sendDefault url GotChainId EthChainId.request
+            , JsonRpcHttp.sendDefault
+                model.rpcUrl
+                GotChainId
+                EthChainId.request
             )
 
         GotChainId (Ok chainId) ->
@@ -69,11 +92,18 @@ update msg model =
 
         ClickedGetBalance ->
             ( model
-            , JsonRpcHttp.sendDefault url GotBalance <|
-                EthGetBalance.request
-                    { address = Address.genesis
-                    , maybeBlock = Just <| Block.fromTag Block.Finalized
-                    }
+            , let
+                sendEthGetBalance address block =
+                    JsonRpcHttp.sendDefault model.rpcUrl GotBalance <|
+                        EthGetBalance.request
+                            { address = address
+                            , block = block
+                            }
+              in
+              Maybe.map2 sendEthGetBalance
+                (Address.fromString model.address)
+                (Block.fromString model.block)
+                |> Maybe.withDefault Cmd.none
             )
 
         GotBalance (Ok balance) ->
@@ -89,9 +119,19 @@ update msg model =
 
 
 view : Model -> H.Html Msg
-view { maybeChainId, maybeBalance } =
+view { rpcUrl, address, block, maybeChainId, maybeBalance } =
     H.div []
-        [ H.h1 [] [ H.text "Examples" ]
+        [ H.h1 [] [ H.text "Ethereum Examples" ]
+        , H.p []
+            [ H.label [] [ H.text "JSON-RPC server URL: " ]
+            , H.input
+                [ HA.autofocus True
+                , HA.placeholder "Enter a URL"
+                , HA.value rpcUrl
+                , HE.onInput EnteredRpcUrl
+                ]
+                []
+            ]
         , H.h2 [] [ H.text "eth_chainId" ]
         , case maybeChainId of
             Nothing ->
@@ -110,6 +150,24 @@ view { maybeChainId, maybeBalance } =
                 [ H.text "Get chainId" ]
             ]
         , H.h2 [] [ H.text "eth_getBalance" ]
+        , H.p []
+            [ H.label [] [ H.text "Address: " ]
+            , H.input
+                [ HA.placeholder "Enter an address"
+                , HA.value address
+                , HE.onInput EnteredAddress
+                ]
+                []
+            ]
+        , H.p []
+            [ H.label [] [ H.text "Block: " ]
+            , H.input
+                [ HA.placeholder "Enter a block number or tag"
+                , HA.value block
+                , HE.onInput EnteredBlock
+                ]
+                []
+            ]
         , case maybeBalance of
             Nothing ->
                 H.p [] [ H.text "Click the button below to get the balance." ]

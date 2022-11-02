@@ -2,8 +2,7 @@ module Ethereum.Data.Block exposing
     ( Block
     , Tag(..)
     , encode
-    , fromNumber
-    , fromTag
+    , fromString
     )
 
 import Ethereum.Lib.Parser as P
@@ -24,14 +23,31 @@ type Tag
     | Pending
 
 
-fromNumber : String -> Maybe Block
-fromNumber s =
-    case P.run numberParser s of
-        Ok number ->
-            Just <| Number number
+fromString : String -> Maybe Block
+fromString s =
+    case s of
+        "earliest" ->
+            Just <| Tag Earliest
 
-        Err _ ->
-            Nothing
+        "finalized" ->
+            Just <| Tag Finalized
+
+        "safe" ->
+            Just <| Tag Safe
+
+        "latest" ->
+            Just <| Tag Latest
+
+        "pending" ->
+            Just <| Tag Pending
+
+        _ ->
+            case P.run numberParser s of
+                Ok number ->
+                    Just <| Number number
+
+                Err _ ->
+                    Nothing
 
 
 numberParser : Parser String
@@ -59,11 +75,6 @@ numberParser =
         |= P.string "0x"
         |= P.oneOf [ nonZero, zero ]
         |. P.end
-
-
-fromTag : Tag -> Block
-fromTag =
-    Tag
 
 
 encode : Block -> JE.Value
