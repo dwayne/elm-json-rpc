@@ -4,8 +4,7 @@ import Ethereum.Data.Address as Address exposing (Address)
 import Ethereum.Data.Block as Block exposing (Block)
 import Json.Decode as JD
 import Json.Encode as JE
-import JsonRpc.Request.Params as Params
-import JsonRpc.Transport.Http exposing (Request)
+import JsonRpc.Advanced as JsonRpc
 
 
 type alias Options =
@@ -14,11 +13,11 @@ type alias Options =
     }
 
 
-request : Options -> Request JE.Value String
+request : Options -> JsonRpc.Request JE.Value String
 request { address, block } =
     { method = "eth_getBalance"
     , params =
-        Params.byPosition
+        JsonRpc.positionalParams
             [ Address.encode address
             , Block.encode block
             ]

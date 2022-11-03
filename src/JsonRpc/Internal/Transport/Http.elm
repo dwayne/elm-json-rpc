@@ -1,21 +1,19 @@
-module JsonRpc.Transport.Http exposing
+module JsonRpc.Internal.Transport.Http exposing
     ( Error(..)
     , HttpError(..)
+    , Options
     , Request
-    , SendOptions
-    , defaultSendOptions
     , send
-    , sendDefault
     )
 
 import Http
 import Json.Decode as JD
-import JsonRpc.Id as Id exposing (Id)
-import JsonRpc.Request as Request
-import JsonRpc.Request.Id as RequestId
-import JsonRpc.Request.Params exposing (Params)
-import JsonRpc.Response as Response
-import JsonRpc.Response.Error as ResponseError exposing (ErrorObject)
+import JsonRpc.Internal.Request as Request
+import JsonRpc.Internal.Request.Id as RequestId
+import JsonRpc.Internal.Request.Params exposing (Params)
+import JsonRpc.Internal.Response as Response
+import JsonRpc.Internal.Response.Error as ResponseError
+import JsonRpc.Internal.Response.Id as ResponseId
 
 
 type alias Request data answer =
@@ -31,12 +29,15 @@ type Error data
     | UnexpectedStatus Http.Metadata String
     | DecodeError JD.Error
     | MismatchedIds
-        { requestId : Id
-        , responseId : Id
+        { requestId : String
+        , responseId : String
         }
     | JsonRpcError
-        { errorObject : ErrorObject data
-        , responseId : Id
+        { kind : ResponseError.Kind
+        , code : Int
+        , message : String
+        , maybeData : Maybe data
+        , responseId : String
         }
 
 
@@ -47,37 +48,17 @@ type HttpError
     | BadStatus Http.Metadata String
 
 
-type alias SendOptions =
-    { headers : List Http.Header
+type alias Options data answer msg =
+    { url : String
+    , toMsg : Result (Error data) answer -> msg
+    , headers : List Http.Header
     , timeout : Maybe Float
     , tracker : Maybe String
     }
 
 
-defaultSendOptions : SendOptions
-defaultSendOptions =
-    { headers = []
-    , timeout = Nothing
-    , tracker = Nothing
-    }
-
-
-sendDefault :
-    String
-    -> (Result (Error data) answer -> msg)
-    -> Request data answer
-    -> Cmd msg
-sendDefault =
-    send defaultSendOptions
-
-
-send :
-    SendOptions
-    -> String
-    -> (Result (Error data) answer -> msg)
-    -> Request data answer
-    -> Cmd msg
-send options url toMsg { method, params, dataDecoder, answerDecoder } =
+send : Options data answer msg -> Request data answer -> Cmd msg
+send options { method, params, dataDecoder, answerDecoder } =
     let
         id =
             RequestId.int 1
@@ -89,7 +70,7 @@ send options url toMsg { method, params, dataDecoder, answerDecoder } =
 
         expect =
             handleRequest dataDecoder answerDecoder id
-                |> Http.expectStringResponse toMsg
+                |> Http.expectStringResponse options.toMsg
     in
     Http.request
         { method = "POST"
@@ -97,7 +78,7 @@ send options url toMsg { method, params, dataDecoder, answerDecoder } =
             [ Http.header "Accept" "application/json"
             ]
                 ++ options.headers
-        , url = url
+        , url = options.url
         , body = body
         , expect = expect
         , timeout = options.timeout
@@ -135,13 +116,13 @@ handleRequest dataDecoder answerDecoder id stringResponse =
                     Ok response ->
                         let
                             responseId =
-                                response.id
+                                ResponseId.toString response.id
                         in
                         case response.result of
                             Ok answer ->
                                 let
                                     requestId =
-                                        RequestId.toId id
+                                        RequestId.toString id
                                 in
                                 if requestId == responseId then
                                     Ok answer
@@ -155,12 +136,15 @@ handleRequest dataDecoder answerDecoder id stringResponse =
 
                             Err error ->
                                 let
-                                    errorObject =
+                                    { kind, code, message, maybeData } =
                                         ResponseError.toErrorObject error
                                 in
                                 Err <|
                                     JsonRpcError
-                                        { errorObject = errorObject
+                                        { kind = kind
+                                        , code = code
+                                        , message = message
+                                        , maybeData = maybeData
                                         , responseId = responseId
                                         }
 

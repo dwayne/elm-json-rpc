@@ -1,7 +1,12 @@
-module JsonRpc.Request.Id exposing (Id, encode, int, string, toId)
+module JsonRpc.Internal.Request.Id exposing
+    ( Id
+    , encode
+    , int
+    , string
+    , toString
+    )
 
 import Json.Encode as JE
-import JsonRpc.Id as JsonRpcId
 
 
 type Id
@@ -29,11 +34,11 @@ encode id =
             JE.string s
 
 
-toId : Id -> JsonRpcId.Id
-toId id =
+toString : Id -> String
+toString id =
     case id of
         Int n ->
-            JsonRpcId.int n
+            String.fromInt n
 
         String s ->
-            JsonRpcId.string s
+            "\"" ++ s ++ "\""

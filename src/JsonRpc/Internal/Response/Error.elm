@@ -1,4 +1,4 @@
-module JsonRpc.Response.Error exposing
+module JsonRpc.Internal.Response.Error exposing
     ( Error
     , ErrorObject
     , Kind(..)

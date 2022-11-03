@@ -1,4 +1,4 @@
-module JsonRpc.Request.Params exposing
+module JsonRpc.Internal.Request.Params exposing
     ( Param
     , Params
     , byName

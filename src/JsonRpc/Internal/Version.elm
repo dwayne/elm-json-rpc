@@ -1,4 +1,4 @@
-module JsonRpc.Version exposing (encode, version)
+module JsonRpc.Internal.Version exposing (encode, version)
 
 import Json.Encode as JE
 

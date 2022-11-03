@@ -1,9 +1,10 @@
-module JsonRpc.Id exposing
+module JsonRpc.Internal.Response.Id exposing
     ( Id
     , decoder
     , int
     , null
     , string
+    , toString
     )
 
 import Json.Decode as JD
@@ -37,3 +38,16 @@ decoder =
         , JD.map String JD.string
         , JD.null Null
         ]
+
+
+toString : Id -> String
+toString id =
+    case id of
+        Int n ->
+            String.fromInt n
+
+        String s ->
+            "\"" ++ s ++ "\""
+
+        Null ->
+            "null"
