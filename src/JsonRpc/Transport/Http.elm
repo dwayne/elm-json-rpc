@@ -65,7 +65,7 @@ send options { method, params, dataDecoder, answerDecoder } =
 
         body =
             Request.request method params id
-                |> Request.encode
+                |> Request.toJson
                 |> Http.jsonBody
 
         expect =

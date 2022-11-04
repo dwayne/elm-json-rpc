@@ -1,4 +1,4 @@
-module JsonRpc.Version exposing (encode, version)
+module JsonRpc.Version exposing (toJson, version)
 
 import Json.Encode as JE
 
@@ -8,6 +8,6 @@ version =
     "2.0"
 
 
-encode : JE.Value
-encode =
+toJson : JE.Value
+toJson =
     JE.string version

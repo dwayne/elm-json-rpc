@@ -4,7 +4,7 @@ module JsonRpc.Request.Params exposing
     , byName
     , byPosition
     , empty
-    , encode
+    , toJson
     )
 
 import Json.Encode as JE
@@ -34,8 +34,8 @@ byName first rest =
     Object <| first :: rest
 
 
-encode : Params -> JE.Value
-encode params =
+toJson : Params -> JE.Value
+toJson params =
     case params of
         Array positionalParams ->
             JE.list identity positionalParams

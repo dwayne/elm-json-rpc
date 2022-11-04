@@ -1,8 +1,8 @@
 module JsonRpc.Request exposing
     ( Request
-    , encode
     , notification
     , request
+    , toJson
     )
 
 import Json.Encode as JE
@@ -40,23 +40,23 @@ notification method params =
         }
 
 
-encode : Request -> JE.Value
-encode req =
+toJson : Request -> JE.Value
+toJson req =
     let
         jsonrpc =
-            ( "jsonrpc", Version.encode )
+            ( "jsonrpc", Version.toJson )
     in
     JE.object <|
         case req of
             Request { method, params, id } ->
                 [ jsonrpc
                 , ( "method", JE.string method )
-                , ( "params", Params.encode params )
-                , ( "id", Id.encode id )
+                , ( "params", Params.toJson params )
+                , ( "id", Id.toJson id )
                 ]
 
             Notification { method, params } ->
                 [ jsonrpc
                 , ( "method", JE.string method )
-                , ( "params", Params.encode params )
+                , ( "params", Params.toJson params )
                 ]

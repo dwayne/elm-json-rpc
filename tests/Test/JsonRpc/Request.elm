@@ -132,7 +132,7 @@ expectRequestObject { method, params, maybeId } request =
     let
         result =
             request
-                |> Request.encode
+                |> Request.toJson
                 |> JD.decodeValue requestObjectDecoder
     in
     case result of

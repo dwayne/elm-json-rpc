@@ -1,8 +1,8 @@
 module JsonRpc.Request.Id exposing
     ( Id
-    , encode
     , int
     , string
+    , toJson
     , toString
     )
 
@@ -24,16 +24,6 @@ string =
     String
 
 
-encode : Id -> JE.Value
-encode id =
-    case id of
-        Int n ->
-            JE.int n
-
-        String s ->
-            JE.string s
-
-
 toString : Id -> String
 toString id =
     case id of
@@ -42,3 +32,13 @@ toString id =
 
         String s ->
             "\"" ++ s ++ "\""
+
+
+toJson : Id -> JE.Value
+toJson id =
+    case id of
+        Int n ->
+            JE.int n
+
+        String s ->
+            JE.string s
