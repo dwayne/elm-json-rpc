@@ -1,4 +1,4 @@
-module JsonRpc.Internal.Request.Id exposing
+module JsonRpc.Request.Id exposing
     ( Id
     , encode
     , int

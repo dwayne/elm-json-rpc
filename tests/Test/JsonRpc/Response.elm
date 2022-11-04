@@ -1,10 +1,10 @@
-module Test.JsonRpc.Internal.Response exposing (suite)
+module Test.JsonRpc.Response exposing (suite)
 
 import Expect exposing (Expectation)
 import Json.Decode as JD
-import JsonRpc.Internal.Response as Response exposing (Response)
-import JsonRpc.Internal.Response.Error as Error
-import JsonRpc.Internal.Response.Id as Id exposing (Id)
+import JsonRpc.Response as Response exposing (Response)
+import JsonRpc.Response.Error as Error
+import JsonRpc.Response.Id as Id exposing (Id)
 import Test exposing (Test, describe, test)
 
 

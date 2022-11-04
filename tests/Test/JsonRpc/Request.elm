@@ -1,11 +1,11 @@
-module Test.JsonRpc.Internal.Request exposing (suite)
+module Test.JsonRpc.Request exposing (suite)
 
 import Expect exposing (Expectation)
 import Json.Decode as JD
 import Json.Encode as JE
-import JsonRpc.Internal.Request as Request exposing (Request)
-import JsonRpc.Internal.Request.Id as Id
-import JsonRpc.Internal.Request.Params as Params
+import JsonRpc.Request as Request exposing (Request)
+import JsonRpc.Request.Id as Id
+import JsonRpc.Request.Params as Params
 import Test exposing (Test, describe, test)
 
 

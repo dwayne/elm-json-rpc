@@ -1,4 +1,4 @@
-module JsonRpc.Internal.Response.Id exposing
+module JsonRpc.Response.Id exposing
     ( Id
     , decoder
     , int

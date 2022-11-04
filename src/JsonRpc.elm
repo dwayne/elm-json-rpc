@@ -1,22 +1,23 @@
-module JsonRpc.Advanced exposing
+module JsonRpc exposing
     ( Error(..)
     , HttpError(..)
     , Kind(..)
     , Options
-    , Params
     , Param
+    , Params
     , Request
-    , emptyParams
+    , empty
     , keywordParams
-    , positionalParams
+    , params
     , send
     )
 
 import Http
 import Json.Decode as JD
-import JsonRpc.Internal.Request.Params as RequestParams
-import JsonRpc.Internal.Response.Error as ResponseError
-import JsonRpc.Internal.Transport.Http as JsonRpcHttp
+import Json.Encode as JE
+import JsonRpc.Request.Params as RequestParams
+import JsonRpc.Response.Error as ResponseError
+import JsonRpc.Transport.Http as JsonRpcHttp
 
 
 
@@ -31,13 +32,13 @@ type alias Param =
     RequestParams.Param
 
 
-emptyParams : Params
-emptyParams =
+empty : Params
+empty =
     RequestParams.empty
 
 
-positionalParams : List Param -> Params
-positionalParams =
+params : List Param -> Params
+params =
     RequestParams.byPosition
 
 
@@ -50,11 +51,14 @@ keywordParams =
 -- TRANSPORT: HTTP
 
 
-type alias Request data answer =
-    JsonRpcHttp.Request data answer
+type alias Request result =
+    { method : String
+    , params : Params
+    , result : JD.Decoder result
+    }
 
 
-type Error data
+type Error
     = HttpError HttpError
     | UnexpectedStatus Http.Metadata String
     | DecodeError JD.Error
@@ -66,7 +70,7 @@ type Error data
         { kind : Kind
         , code : Int
         , message : String
-        , maybeData : Maybe data
+        , maybeData : Maybe JE.Value
         , responseId : String
         }
 
@@ -89,17 +93,17 @@ type Kind
     | ApplicationError
 
 
-type alias Options data answer msg =
+type alias Options result msg =
     { url : String
-    , toMsg : Result (Error data) answer -> msg
+    , toMsg : Result Error result -> msg
     , headers : List Http.Header
     , timeout : Maybe Float
     , tracker : Maybe String
     }
 
 
-send : Options data answer msg -> Request data answer -> Cmd msg
-send { url, toMsg, headers, timeout, tracker } =
+send : Options result msg -> Request result -> Cmd msg
+send { url, toMsg, headers, timeout, tracker } request =
     let
         internalOptions =
             { url = url
@@ -107,6 +111,13 @@ send { url, toMsg, headers, timeout, tracker } =
             , headers = headers
             , timeout = timeout
             , tracker = tracker
+            }
+
+        internalRequest =
+            { method = request.method
+            , params = request.params
+            , dataDecoder = JD.value
+            , answerDecoder = request.result
             }
 
         fromInternalError error =
@@ -172,4 +183,4 @@ send { url, toMsg, headers, timeout, tracker } =
                 ResponseError.ApplicationError ->
                     ApplicationError
     in
-    JsonRpcHttp.send internalOptions
+    JsonRpcHttp.send internalOptions internalRequest

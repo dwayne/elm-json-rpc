@@ -9,7 +9,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Json.Encode as JE
-import JsonRpc.Advanced as JsonRpc
+import JsonRpc
 
 
 main : Program () Model Msg
@@ -48,9 +48,9 @@ type Msg
     | EnteredAddress String
     | EnteredBlock String
     | ClickedGetChainId
-    | GotChainId (Result (JsonRpc.Error JE.Value) String)
+    | GotChainId (Result JsonRpc.Error String)
     | ClickedGetBalance
-    | GotBalance (Result (JsonRpc.Error JE.Value) String)
+    | GotBalance (Result JsonRpc.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -104,7 +104,8 @@ update msg model =
                         , headers = []
                         , timeout = Nothing
                         , tracker = Nothing
-                        } <|
+                        }
+                    <|
                         EthGetBalance.request
                             { address = address
                             , block = block

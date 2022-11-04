@@ -1,4 +1,4 @@
-module JsonRpc.Internal.Transport.Http exposing
+module JsonRpc.Transport.Http exposing
     ( Error(..)
     , HttpError(..)
     , Options
@@ -8,12 +8,12 @@ module JsonRpc.Internal.Transport.Http exposing
 
 import Http
 import Json.Decode as JD
-import JsonRpc.Internal.Request as Request
-import JsonRpc.Internal.Request.Id as RequestId
-import JsonRpc.Internal.Request.Params exposing (Params)
-import JsonRpc.Internal.Response as Response
-import JsonRpc.Internal.Response.Error as ResponseError
-import JsonRpc.Internal.Response.Id as ResponseId
+import JsonRpc.Request as Request
+import JsonRpc.Request.Id as RequestId
+import JsonRpc.Request.Params exposing (Params)
+import JsonRpc.Response as Response
+import JsonRpc.Response.Error as ResponseError
+import JsonRpc.Response.Id as ResponseId
 
 
 type alias Request data answer =

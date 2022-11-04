@@ -1,9 +1,9 @@
-module JsonRpc.Internal.Response exposing (Response, decoder)
+module JsonRpc.Response exposing (Response, decoder)
 
 import Json.Decode as JD
-import JsonRpc.Internal.Response.Error as Error exposing (Error)
-import JsonRpc.Internal.Response.Id as Id exposing (Id)
-import JsonRpc.Internal.Version as Version
+import JsonRpc.Response.Error as Error exposing (Error)
+import JsonRpc.Response.Id as Id exposing (Id)
+import JsonRpc.Version as Version
 
 
 type alias Response data answer =

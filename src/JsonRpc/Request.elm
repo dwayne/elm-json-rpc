@@ -1,4 +1,4 @@
-module JsonRpc.Internal.Request exposing
+module JsonRpc.Request exposing
     ( Request
     , encode
     , notification
@@ -6,9 +6,9 @@ module JsonRpc.Internal.Request exposing
     )
 
 import Json.Encode as JE
-import JsonRpc.Internal.Request.Id as Id exposing (Id)
-import JsonRpc.Internal.Request.Params as Params exposing (Params)
-import JsonRpc.Internal.Version as Version
+import JsonRpc.Request.Id as Id exposing (Id)
+import JsonRpc.Request.Params as Params exposing (Params)
+import JsonRpc.Version as Version
 
 
 type Request
