@@ -1,20 +1,28 @@
 module JsonRpc exposing
     ( Error(..)
     , HttpError(..)
+    , Id
     , Kind(..)
     , Options
     , Param
     , Params
     , Request
+    , defaultId
+    , defaultOptions
     , empty
+    , intId
     , keywordParams
     , params
     , send
+    , sendCustom
+    , sendWithId
+    , stringId
     )
 
 import Http
 import Json.Decode as JD
 import Json.Encode as JE
+import JsonRpc.Request.Id as RequestId
 import JsonRpc.Request.Params as RequestParams
 import JsonRpc.Response.Error as ResponseError
 import JsonRpc.Transport.Http as JsonRpcHttp
@@ -45,6 +53,29 @@ params =
 keywordParams : ( String, Param ) -> List ( String, Param ) -> Params
 keywordParams =
     RequestParams.byName
+
+
+
+-- ID
+
+
+type alias Id =
+    RequestId.Id
+
+
+defaultId : Id
+defaultId =
+    RequestId.int 1
+
+
+intId : Int -> Id
+intId =
+    RequestId.int
+
+
+stringId : String -> Id
+stringId =
+    RequestId.string
 
 
 
@@ -93,25 +124,48 @@ type Kind
     | ApplicationError
 
 
-type alias Options result msg =
-    { url : String
-    , toMsg : Result Error result -> msg
-    , headers : List Http.Header
-    , timeout : Maybe Float
-    , tracker : Maybe String
+type alias Options =
+    JsonRpcHttp.Options
+
+
+defaultOptions : Options
+defaultOptions =
+    { headers = []
+    , timeout = Nothing
+    , tracker = Nothing
     }
 
 
-send : Options result msg -> Request result -> Cmd msg
-send { url, toMsg, headers, timeout, tracker } request =
+send :
+    String
+    -> (Result Error result -> msg)
+    -> Request result
+    -> Cmd msg
+send url toMsg =
+    sendCustom defaultOptions url toMsg defaultId
+
+
+sendWithId :
+    String
+    -> (Result Error result -> msg)
+    -> Id
+    -> Request result
+    -> Cmd msg
+sendWithId url toMsg =
+    sendCustom defaultOptions url toMsg
+
+
+sendCustom :
+    Options
+    -> String
+    -> (Result Error result -> msg)
+    -> Id
+    -> Request result
+    -> Cmd msg
+sendCustom options url toMsg id request =
     let
-        internalOptions =
-            { url = url
-            , toMsg = toMsg << Result.mapError fromInternalError
-            , headers = headers
-            , timeout = timeout
-            , tracker = tracker
-            }
+        internalToMsg =
+            toMsg << Result.mapError fromInternalError
 
         internalRequest =
             { method = request.method
@@ -183,4 +237,4 @@ send { url, toMsg, headers, timeout, tracker } request =
                 ResponseError.ApplicationError ->
                     ApplicationError
     in
-    JsonRpcHttp.send internalOptions internalRequest
+    JsonRpcHttp.send options url internalToMsg id internalRequest

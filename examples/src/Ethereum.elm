@@ -73,14 +73,7 @@ update msg model =
 
         ClickedGetChainId ->
             ( model
-            , JsonRpc.send
-                { url = model.rpcUrl
-                , toMsg = GotChainId
-                , headers = []
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-                EthChainId.request
+            , JsonRpc.send model.rpcUrl GotChainId EthChainId.request
             )
 
         GotChainId (Ok chainId) ->
@@ -98,13 +91,10 @@ update msg model =
             ( model
             , let
                 sendEthGetBalance address block =
-                    JsonRpc.send
-                        { url = model.rpcUrl
-                        , toMsg = GotBalance
-                        , headers = []
-                        , timeout = Nothing
-                        , tracker = Nothing
-                        }
+                    JsonRpc.sendWithId
+                        model.rpcUrl
+                        GotBalance
+                        (JsonRpc.stringId "0x1ae4f")
                     <|
                         EthGetBalance.request
                             { address = address

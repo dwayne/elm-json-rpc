@@ -48,21 +48,22 @@ type HttpError
     | BadStatus Http.Metadata String
 
 
-type alias Options data answer msg =
-    { url : String
-    , toMsg : Result (Error data) answer -> msg
-    , headers : List Http.Header
+type alias Options =
+    { headers : List Http.Header
     , timeout : Maybe Float
     , tracker : Maybe String
     }
 
 
-send : Options data answer msg -> Request data answer -> Cmd msg
-send options { method, params, dataDecoder, answerDecoder } =
+send :
+    Options
+    -> String
+    -> (Result (Error data) answer -> msg)
+    -> RequestId.Id
+    -> Request data answer
+    -> Cmd msg
+send options url toMsg id { method, params, dataDecoder, answerDecoder } =
     let
-        id =
-            RequestId.int 1
-
         body =
             Request.request method params id
                 |> Request.toJson
@@ -70,7 +71,7 @@ send options { method, params, dataDecoder, answerDecoder } =
 
         expect =
             handleRequest dataDecoder answerDecoder id
-                |> Http.expectStringResponse options.toMsg
+                |> Http.expectStringResponse toMsg
     in
     Http.request
         { method = "POST"
@@ -78,7 +79,7 @@ send options { method, params, dataDecoder, answerDecoder } =
             [ Http.header "Accept" "application/json"
             ]
                 ++ options.headers
-        , url = options.url
+        , url = url
         , body = body
         , expect = expect
         , timeout = options.timeout
