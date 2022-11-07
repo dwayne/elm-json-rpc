@@ -33,9 +33,9 @@ type alias Model =
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { rpcUrl = ""
-      , address = ""
-      , block = ""
+    ( { rpcUrl = "https://eth-goerli.public.blastapi.io"
+      , address = "0x0000000000000000000000000000000000000000"
+      , block = "latest"
       , maybeChainId = Nothing
       , maybeBalance = Nothing
       }
