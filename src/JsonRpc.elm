@@ -50,7 +50,7 @@ params =
     RequestParams.byPosition
 
 
-keywordParams : ( String, Param ) -> List ( String, Param ) -> Params
+keywordParams : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
 keywordParams =
     RequestParams.byName
 

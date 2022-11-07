@@ -29,9 +29,28 @@ byPosition =
     Array
 
 
-byName : ( String, Param ) -> List ( String, Param ) -> Params
-byName first rest =
-    Object <| first :: rest
+byName : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
+byName required optional =
+    let
+        kwParams =
+            (++) required <|
+                List.filterMap
+                    (\( key, maybeParam ) ->
+                        case maybeParam of
+                            Just param ->
+                                Just ( key, param )
+
+                            Nothing ->
+                                Nothing
+                    )
+                    optional
+    in
+    case kwParams of
+        [] ->
+            empty
+
+        _ ->
+            Object kwParams
 
 
 toJson : Params -> JE.Value
