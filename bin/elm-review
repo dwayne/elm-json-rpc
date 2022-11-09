@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-elm-format                \
+npx elm-review            \
   "$project/examples/src" \
-  "$project/review/src"   \
   "$project/src"          \
   "$project/tests"        \
-  --yes
+  "$@"

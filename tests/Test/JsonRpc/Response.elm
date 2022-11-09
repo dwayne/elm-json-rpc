@@ -2,7 +2,7 @@ module Test.JsonRpc.Response exposing (suite)
 
 import Expect exposing (Expectation)
 import Json.Decode as JD
-import JsonRpc.Response as Response exposing (Response)
+import JsonRpc.Response as Response
 import JsonRpc.Response.Error as Error
 import JsonRpc.Response.Id as Id exposing (Id)
 import Test exposing (Test, describe, test)
@@ -386,9 +386,6 @@ decoderSuite =
 
                     decoder =
                         Response.decoder unitDecoder unitDecoder
-
-                    expectedMessage =
-                        "expected a String, Int, or null"
                 in
                 case JD.decodeString decoder rawJsonResponse of
                     Err error ->
@@ -396,7 +393,7 @@ decoderSuite =
                             |> expectMatch "id failed"
 
                     _ ->
-                        Expect.fail expectedMessage
+                        Expect.fail "expected a String, Int, or null"
         ]
 
 

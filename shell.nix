@@ -1,5 +1,5 @@
 {
-  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/451c1a3e32ac73288d0f6fa48d53c9f2c1c5a3d8.tar.gz") {}
+  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/df2bcbbd1c2aa144261cf1b0003c889c075dc693.tar.gz") {}
 }:
 
 pkgs.mkShell {
@@ -7,10 +7,13 @@ pkgs.mkShell {
     pkgs.elmPackages.elm
     pkgs.elmPackages.elm-format
     pkgs.elmPackages.elm-test
+    pkgs.nodejs-18_x
   ];
 
   shellHook = ''
     export project="$PWD"
     export PATH="$project/bin:$PATH"
+
+    npm install --loglevel error > /dev/null
   '';
 }

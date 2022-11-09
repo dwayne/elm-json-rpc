@@ -1,6 +1,5 @@
 module Ethereum.Data.Block exposing
     ( Block
-    , Tag(..)
     , encode
     , fromString
     )

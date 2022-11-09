@@ -30,20 +30,22 @@ byPosition =
 
 
 byName : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
-byName required optional =
+byName required maybeParams =
     let
-        kwParams =
-            (++) required <|
-                List.filterMap
-                    (\( key, maybeParam ) ->
-                        case maybeParam of
-                            Just param ->
-                                Just ( key, param )
+        optional =
+            List.filterMap
+                (\( key, maybeParam ) ->
+                    case maybeParam of
+                        Just param ->
+                            Just ( key, param )
 
-                            Nothing ->
-                                Nothing
-                    )
-                    optional
+                        Nothing ->
+                            Nothing
+                )
+                maybeParams
+
+        kwParams =
+            required ++ optional
     in
     case kwParams of
         [] ->

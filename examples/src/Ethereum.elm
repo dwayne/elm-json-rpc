@@ -8,7 +8,6 @@ import Ethereum.Eth.GetBalance as EthGetBalance
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import Json.Encode as JE
 import JsonRpc
 
 

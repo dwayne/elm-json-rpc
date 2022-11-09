@@ -75,10 +75,7 @@ send options url toMsg id { method, params, dataDecoder, answerDecoder } =
     in
     Http.request
         { method = "POST"
-        , headers =
-            [ Http.header "Accept" "application/json"
-            ]
-                ++ options.headers
+        , headers = Http.header "Accept" "application/json" :: options.headers
         , url = url
         , body = body
         , expect = expect
