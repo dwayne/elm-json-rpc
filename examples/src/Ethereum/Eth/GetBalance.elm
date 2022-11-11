@@ -16,7 +16,7 @@ request : Options -> JsonRpc.Request String
 request { address, block } =
     { method = "eth_getBalance"
     , params =
-        JsonRpc.params
+        JsonRpc.positionalParams
             [ Address.encode address
             , Block.encode block
             ]

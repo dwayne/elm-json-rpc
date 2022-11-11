@@ -7,6 +7,6 @@ import JsonRpc
 request : JsonRpc.Request String
 request =
     { method = "eth_chainId"
-    , params = JsonRpc.empty
+    , params = JsonRpc.noParams
     , result = JD.string
     }

@@ -1,23 +1,39 @@
 module JsonRpc exposing
-    ( Error(..)
-    , HttpError(..)
-    , Id
-    , Kind(..)
-    , Options
-    , Param
-    , Params
-    , Request
-    , defaultId
-    , defaultOptions
-    , empty
-    , intId
-    , keywordParams
-    , params
+    ( Request, Params, Param, noParams, positionalParams, keywordParams
     , send
-    , sendCustom
-    , sendWithId
-    , stringId
+    , Id, intId, stringId, sendWithId
+    , Options, defaultOptions, sendCustom
+    , Error(..), HttpError(..), Kind(..)
     )
+
+{-| Send JSON-RPC 2.0 requests over HTTP.
+
+
+# Construct a request
+
+@docs Request, Params, Param, noParams, positionalParams, keywordParams
+
+
+# Send a request
+
+@docs send
+
+
+# Send a request with a custom identifier
+
+@docs Id, intId, stringId, sendWithId
+
+
+# Advanced
+
+@docs Options, defaultOptions, sendCustom
+
+
+# Error
+
+@docs Error, HttpError, Kind
+
+-}
 
 import Http
 import Json.Decode as JD
@@ -32,56 +48,61 @@ import JsonRpc.Transport.Http as JsonRpcHttp
 -- PARAMS
 
 
-type alias Params =
-    RequestParams.Params
+{-| -}
+type Params
+    = Params RequestParams.Params
 
 
+{-| A JSON value.
+-}
 type alias Param =
-    RequestParams.Param
+    JE.Value
 
 
-empty : Params
-empty =
-    RequestParams.empty
+{-| An empty JSON Array. -}
+noParams : Params
+noParams =
+    Params RequestParams.empty
 
 
-params : List Param -> Params
-params =
-    RequestParams.byPosition
+{-| -}
+positionalParams : List Param -> Params
+positionalParams =
+    Params << RequestParams.byPosition
 
 
+{-| -}
 keywordParams : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
-keywordParams =
-    RequestParams.byName
+keywordParams required optional =
+    Params <| RequestParams.byName required optional
 
 
 
 -- ID
 
 
-type alias Id =
-    RequestId.Id
+{-| -}
+type Id
+    = Id RequestId.Id
 
 
-defaultId : Id
-defaultId =
-    RequestId.int 1
-
-
+{-| -}
 intId : Int -> Id
 intId =
-    RequestId.int
+    Id << RequestId.int
 
 
+{-| -}
 stringId : String -> Id
 stringId =
-    RequestId.string
+    Id << RequestId.string
 
 
 
 -- TRANSPORT: HTTP
 
 
+{-| -}
 type alias Request result =
     { method : String
     , params : Params
@@ -89,6 +110,7 @@ type alias Request result =
     }
 
 
+{-| -}
 type Error
     = HttpError HttpError
     | UnexpectedStatus Http.Metadata String
@@ -106,6 +128,7 @@ type Error
         }
 
 
+{-| -}
 type HttpError
     = BadUrl String
     | Timeout
@@ -113,6 +136,7 @@ type HttpError
     | BadStatus Http.Metadata String
 
 
+{-| -}
 type Kind
     = ParseError
     | InvalidRequest
@@ -124,10 +148,15 @@ type Kind
     | ApplicationError
 
 
+{-| -}
 type alias Options =
-    JsonRpcHttp.Options
+    { headers : List Http.Header
+    , timeout : Maybe Float
+    , tracker : Maybe String
+    }
 
 
+{-| -}
 defaultOptions : Options
 defaultOptions =
     { headers = []
@@ -136,6 +165,7 @@ defaultOptions =
     }
 
 
+{-| -}
 send :
     String
     -> (Result Error result -> msg)
@@ -145,6 +175,12 @@ send url toMsg =
     sendCustom defaultOptions url toMsg defaultId
 
 
+defaultId : Id
+defaultId =
+    Id <| RequestId.int 1
+
+
+{-| -}
 sendWithId :
     String
     -> (Result Error result -> msg)
@@ -155,6 +191,7 @@ sendWithId url toMsg =
     sendCustom defaultOptions url toMsg
 
 
+{-| -}
 sendCustom :
     Options
     -> String
@@ -162,14 +199,17 @@ sendCustom :
     -> Id
     -> Request result
     -> Cmd msg
-sendCustom options url toMsg id request =
+sendCustom options url toMsg (Id id) request =
     let
         internalToMsg =
             toMsg << Result.mapError fromInternalError
 
+        (Params internalParams) =
+            request.params
+
         internalRequest =
             { method = request.method
-            , params = request.params
+            , params = internalParams
             , dataDecoder = JD.value
             , answerDecoder = request.result
             }

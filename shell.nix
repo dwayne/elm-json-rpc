@@ -5,6 +5,7 @@
 pkgs.mkShell {
   buildInputs = [
     pkgs.elmPackages.elm
+    pkgs.elmPackages.elm-doc-preview
     pkgs.elmPackages.elm-format
     pkgs.elmPackages.elm-test
     pkgs.nodejs-18_x
