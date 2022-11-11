@@ -59,7 +59,8 @@ type alias Param =
     JE.Value
 
 
-{-| An empty JSON Array. -}
+{-| An empty JSON Array.
+-}
 noParams : Params
 noParams =
     Params RequestParams.empty

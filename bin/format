@@ -5,4 +5,4 @@ elm-format                \
   "$project/review/src"   \
   "$project/src"          \
   "$project/tests"        \
-  --yes
+  "${@:---yes}"
