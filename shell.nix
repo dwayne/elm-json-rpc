@@ -1,9 +1,8 @@
-{
-  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/df2bcbbd1c2aa144261cf1b0003c889c075dc693.tar.gz") {}
-}:
-
+let
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/df2bcbbd1c2aa144261cf1b0003c889c075dc693.tar.gz") {};
+in
 pkgs.mkShell {
-  buildInputs = [
+  packages = [
     pkgs.elmPackages.elm
     pkgs.elmPackages.elm-doc-preview
     pkgs.elmPackages.elm-format
@@ -15,6 +14,6 @@ pkgs.mkShell {
     export project="$PWD"
     export PATH="$project/bin:$PATH"
 
-    npm install --loglevel error > /dev/null
+    npm install --loglevel error >/dev/null
   '';
 }
