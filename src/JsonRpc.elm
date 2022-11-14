@@ -48,7 +48,9 @@ import JsonRpc.Transport.Http as JsonRpcHttp
 -- PARAMS
 
 
-{-| -}
+{-| A JSON Array or Object that holds the parameter values to be used during
+invocation of an RPC method.
+-}
 type Params
     = Params RequestParams.Params
 
@@ -66,13 +68,56 @@ noParams =
     Params RequestParams.empty
 
 
-{-| -}
+{-| A JSON Array containing the parameter values in the Server expected order.
+
+For example, the following:
+
+    import Json.Encode as JE
+    import JsonRpc
+
+    JsonRpc.positionalParams
+        [ JE.string "0x0000000000000000000000000000000000000000"
+        , JE.string "latest"
+        ]
+
+represents the JSON Array:
+
+    [ "0x0000000000000000000000000000000000000000", "latest" ]
+
+-}
 positionalParams : List Param -> Params
 positionalParams =
     Params << RequestParams.byPosition
 
 
-{-| -}
+{-| A JSON Object with member names that match the Server expected parameter
+names.
+
+For example, the following:
+
+    import Json.Encode as JE
+    import JsonRpc
+
+    JsonRpc.keywordParams
+        [ ( "apiKey", JE.string "YOUR API KEY"
+        , ( "n", JE.int 5 )
+        , ( "min", JE.int 1 )
+        , ( "max", JE.int 10 )
+        ]
+        [ ( "replacement", Just False )
+        ]
+
+represents the JSON Object:
+
+    {
+        "apiKey": "YOUR API KEY",
+        "n": 5,
+        "min": 1,
+        "max": 10,
+        "replacement": false
+    }
+
+-}
 keywordParams : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
 keywordParams required optional =
     Params <| RequestParams.byName required optional
@@ -103,7 +148,46 @@ stringId =
 -- TRANSPORT: HTTP
 
 
-{-| -}
+{-| An RPC call is represented by sending a [Request object](https://www.jsonrpc.org/specification#request_object)
+to a server. This `Request` record is used to create a Request object.
+
+  - `method` contains the name of the method to be invoked
+  - `params` holds the parameter values to be used during the invocation of the
+    method
+  - `result` is the JSON decoder used to decode the _result_ field of a successful
+    [Response object](https://www.jsonrpc.org/specification#response_object)
+
+For example, the following `Request` record:
+
+    import Json.Decode as JD
+    import Json.Encode as JE
+    import JsonRpc
+
+    getBalance : JsonRpc.Request String
+    getBalance =
+        { method = "eth_getBalance"
+        , params =
+            JsonRpc.positionalParams
+                [ JE.string "0x0000000000000000000000000000000000000000"
+                , JE.string "latest"
+                ]
+        , result = JD.string
+        }
+
+corresponds to the following Request object:
+
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [ "0x0000000000000000000000000000000000000000", "latest" ],
+        "id": ...
+    }
+
+On a successful response the _result_ field is expected to contain a `String`.
+
+**Note:** The _id_ field is set when sending the request.
+
+-}
 type alias Request result =
     { method : String
     , params : Params
