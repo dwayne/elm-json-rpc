@@ -241,7 +241,18 @@ type Kind
     | ApplicationError
 
 
-{-| -}
+{-| The HTTP options you can modify.
+
+  - `headers` are the extra HTTP headers you'd like to add. The
+    `Content-Type: application/json` and `Accept: application/json` headers are
+    always automatically added
+  - `timeout` is the number of milliseconds you are willing to wait before giving
+    up
+  - `tracker` lets you [cancel](https://package.elm-lang.org/packages/elm/http/2.0.0/Http#cancel)
+    and [track](https://package.elm-lang.org/packages/elm/http/2.0.0/Http#track)
+    requests
+
+-}
 type alias HttpOptions =
     { headers : List Http.Header
     , timeout : Maybe Float
@@ -249,7 +260,14 @@ type alias HttpOptions =
     }
 
 
-{-| -}
+{-| The default HTTP options used by [`send`](#send) and [`sendWithId`](#sendWithId).
+
+    { headers = []
+    , timeout = Nothing
+    , tracker = Nothing
+    }
+
+-}
 defaultHttpOptions : HttpOptions
 defaultHttpOptions =
     { headers = []
@@ -266,10 +284,11 @@ identifier of 1.
     type Msg
         = GotBalance (Result JsonRpc.Error String)
 
-    JsonRpc.send
-        "https://eth-goerli.public.blastapi.io"
-        GotBalance
-        getBalance
+    let
+        rpcUrl =
+            "https://eth-goerli.public.blastapi.io"
+    in
+    JsonRpc.send rpcUrl GotBalance getBalance
 
 The Request object:
 
@@ -310,7 +329,28 @@ sendWithId url toMsg =
     sendCustom defaultHttpOptions url toMsg
 
 
-{-| -}
+{-| Just like [`sendWithId`](#sendWithId), but it allows you to customize the
+HTTP options.
+
+    import JsonRpc exposing (defaultHttpOptions)
+
+    type Msg
+        = GotBalance (Result JsonRpc.Error String)
+
+    let
+        httpOptions =
+            -- wait 1 minute
+            { defaultHttpOptions | timeout = Just 60000 }
+
+        rpcUrl =
+            "https://eth-goerli.public.blastapi.io"
+
+        id =
+            JsonRpc.stringId "abc123"
+    in
+    JsonRpc.sendCustom httpOptions rpcUrl GotBalance id getBalance
+
+-}
 sendCustom :
     HttpOptions
     -> String
