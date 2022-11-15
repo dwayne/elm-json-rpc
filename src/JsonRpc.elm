@@ -250,7 +250,32 @@ defaultOptions =
     }
 
 
-{-| -}
+{-| Sends a Request object over HTTP to a JSON-RPC Server with a default request
+identifier of 1.
+
+    import JsonRpc
+
+    type Msg
+        = GotBalance (Result JsonRpc.Error String)
+
+    JsonRpc.send
+        "https://eth-goerli.public.blastapi.io"
+        GotBalance
+        getBalance
+
+The Request object:
+
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [ "0x0000000000000000000000000000000000000000", "latest" ],
+        "id": 1
+    }
+
+will be sent over HTTP to the JSON-RPC Server at the endpoint
+`https://eth-goerli.public.blastapi.io`.
+
+-}
 send :
     String
     -> (Result Error result -> msg)
