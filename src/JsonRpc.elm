@@ -2,7 +2,7 @@ module JsonRpc exposing
     ( Request, Params, Param, noParams, positionalParams, keywordParams
     , send
     , Id, intId, stringId, sendWithId
-    , Options, defaultOptions, sendCustom
+    , HttpOptions, defaultHttpOptions, sendCustom
     , Error(..), HttpError(..), Kind(..)
     )
 
@@ -26,7 +26,7 @@ module JsonRpc exposing
 
 # Advanced
 
-@docs Options, defaultOptions, sendCustom
+@docs HttpOptions, defaultHttpOptions, sendCustom
 
 
 # Error
@@ -242,7 +242,7 @@ type Kind
 
 
 {-| -}
-type alias Options =
+type alias HttpOptions =
     { headers : List Http.Header
     , timeout : Maybe Float
     , tracker : Maybe String
@@ -250,8 +250,8 @@ type alias Options =
 
 
 {-| -}
-defaultOptions : Options
-defaultOptions =
+defaultHttpOptions : HttpOptions
+defaultHttpOptions =
     { headers = []
     , timeout = Nothing
     , tracker = Nothing
@@ -290,7 +290,7 @@ send :
     -> Request result
     -> Cmd msg
 send url toMsg =
-    sendCustom defaultOptions url toMsg defaultId
+    sendCustom defaultHttpOptions url toMsg defaultId
 
 
 defaultId : Id
@@ -307,18 +307,18 @@ sendWithId :
     -> Request result
     -> Cmd msg
 sendWithId url toMsg =
-    sendCustom defaultOptions url toMsg
+    sendCustom defaultHttpOptions url toMsg
 
 
 {-| -}
 sendCustom :
-    Options
+    HttpOptions
     -> String
     -> (Result Error result -> msg)
     -> Id
     -> Request result
     -> Cmd msg
-sendCustom options url toMsg (Id id) request =
+sendCustom httpOptions url toMsg (Id id) request =
     let
         internalToMsg =
             toMsg << Result.mapError fromInternalError
@@ -396,4 +396,4 @@ sendCustom options url toMsg (Id id) request =
                 ResponseError.ApplicationError ->
                     ApplicationError
     in
-    JsonRpcHttp.send options url internalToMsg id internalRequest
+    JsonRpcHttp.send httpOptions url internalToMsg id internalRequest
