@@ -127,18 +127,26 @@ keywordParams required optional =
 -- ID
 
 
-{-| -}
+{-| An identifier established by the Client.
+-}
 type Id
     = Id RequestId.Id
 
 
-{-| -}
+{-| An integer identifier.
+-}
 intId : Int -> Id
 intId =
     Id << RequestId.int
 
 
-{-| -}
+{-| A string identifier. Maybe you'd want to use a UUID as your identifier.
+
+    import JsonRpc
+
+    JsonRpc.stringId "789e08a1-6156-4046-88b6-5b96a87a2eba"
+
+-}
 stringId : String -> Id
 stringId =
     Id << RequestId.string
@@ -149,7 +157,7 @@ stringId =
 
 
 {-| An RPC call is represented by sending a [Request object](https://www.jsonrpc.org/specification#request_object)
-to a server. This `Request` record is used to create a Request object.
+to a server. This [`Request`](#Request) record is used to create a Request object.
 
   - `method` contains the name of the method to be invoked
   - `params` holds the parameter values to be used during the invocation of the
@@ -290,7 +298,8 @@ defaultId =
     Id <| RequestId.int 1
 
 
-{-| -}
+{-| Just like [`send`](#send), but it allows you to set the identifier.
+-}
 sendWithId :
     String
     -> (Result Error result -> msg)
