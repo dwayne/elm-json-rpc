@@ -159,11 +159,11 @@ stringId =
 {-| An RPC call is represented by sending a [Request object](https://www.jsonrpc.org/specification#request_object)
 to a server. This [`Request`](#Request) record is used to create a Request object.
 
-  - `method` contains the name of the method to be invoked
+  - `method` contains the name of the method to be invoked.
   - `params` holds the parameter values to be used during the invocation of the
-    method
+    method.
   - `result` is the JSON decoder used to decode the _result_ field of a successful
-    [Response object](https://www.jsonrpc.org/specification#response_object)
+    [Response object](https://www.jsonrpc.org/specification#response_object).
 
 For example, the following `Request` record:
 
@@ -203,7 +203,21 @@ type alias Request result =
     }
 
 
-{-| -}
+{-| A request can fail in multiple ways.
+
+  - `HttpError` means there was an error trying to reach the server and the
+    underlying [`HttpError`](#HttpError) will tell you why.
+  - `UnexpectedStatus` means the [successful HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses)
+    returned by the server was not 200. In other words, it was in the 200 to 299
+    range, maybe it was 202 or 204 but not 200.
+  - `DecodeError` means the [Response object](https://www.jsonrpc.org/specification#response_object)
+    returned by the server was malformed.
+  - `MismatchedIds` means the _id_ of the [Request object](https://www.jsonrpc.org/specification#request_object)
+    is not the same as the _id_ of the [Response object](https://www.jsonrpc.org/specification#response_object).
+  - `JsonRpcError` means the RPC call encountered an error. The `maybeData`
+    field may contain detailed error information as defined by the server.
+
+-}
 type Error
     = HttpError HttpError
     | UnexpectedStatus Http.Metadata String
@@ -221,7 +235,15 @@ type Error
         }
 
 
-{-| -}
+{-| The HTTP transport can fail in multiple ways.
+
+  - `BadUrl` means you did not provide a valid URL.
+  - `Timeout` means it took too long to get a response.
+  - `NetworkError` means the user turned off their wifi, went in a cave, etc.
+  - `BadStatus` means you got a response back, but the status code indicates
+    failure.
+
+-}
 type HttpError
     = BadUrl String
     | Timeout
@@ -229,7 +251,12 @@ type HttpError
     | BadStatus Http.Metadata String
 
 
-{-| -}
+{-| Categorizes the error code of a failed RPC call.
+
+The categories are derived from the specification as given by the table under
+the [Error object](https://www.jsonrpc.org/specification#error_object) section.
+
+-}
 type Kind
     = ParseError
     | InvalidRequest
@@ -241,16 +268,16 @@ type Kind
     | ApplicationError
 
 
-{-| The HTTP options you can modify.
+{-| The HTTP options you're allowed to modify.
 
   - `headers` are the extra HTTP headers you'd like to add. The
     `Content-Type: application/json` and `Accept: application/json` headers are
-    always automatically added
+    always automatically added.
   - `timeout` is the number of milliseconds you are willing to wait before giving
-    up
+    up.
   - `tracker` lets you [cancel](https://package.elm-lang.org/packages/elm/http/2.0.0/Http#cancel)
     and [track](https://package.elm-lang.org/packages/elm/http/2.0.0/Http#track)
-    requests
+    requests.
 
 -}
 type alias HttpOptions =
