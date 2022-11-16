@@ -8,6 +8,11 @@ module JsonRpc exposing
 
 {-| Send JSON-RPC 2.0 requests over HTTP.
 
+The implementation is guided by the following specifications:
+
+  - [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
+  - [JSON-RPC 2.0 Transport: HTTP](http://www.simple-is-better.org/json-rpc/transport_http.html)
+
 
 # Construct a request
 
@@ -68,7 +73,7 @@ noParams =
     Params RequestParams.empty
 
 
-{-| A JSON Array containing the parameter values in the Server expected order.
+{-| A JSON Array containing the parameter values in the server expected order.
 
 For example, the following:
 
@@ -90,7 +95,7 @@ positionalParams =
     Params << RequestParams.byPosition
 
 
-{-| A JSON Object with member names that match the Server expected parameter
+{-| A JSON Object with member names that match the server expected parameter
 names.
 
 For example, the following:
@@ -127,7 +132,7 @@ keywordParams required optional =
 -- ID
 
 
-{-| An identifier established by the Client.
+{-| An identifier established by you.
 -}
 type Id
     = Id RequestId.Id
@@ -191,7 +196,8 @@ corresponds to the following Request object:
         "id": ...
     }
 
-On a successful response the _result_ field is expected to contain a `String`.
+And, on a successful response the _result_ field is expected to contain a
+`String`.
 
 **Note:** The _id_ field is set when sending the request.
 
@@ -251,7 +257,7 @@ type HttpError
     | BadStatus Http.Metadata String
 
 
-{-| Categorizes the error code of a failed RPC call.
+{-| This data type categorizes the error code of a failed RPC call.
 
 The categories are derived from the specification as given by the table under
 the [Error object](https://www.jsonrpc.org/specification#error_object) section.
@@ -271,8 +277,8 @@ type Kind
 {-| The HTTP options you're allowed to modify.
 
   - `headers` are the extra HTTP headers you'd like to add. The
-    `Content-Type: application/json` and `Accept: application/json` headers are
-    always automatically added.
+    `Content-Type: application/json`, `Content-Length: ...`,
+    and `Accept: application/json` headers are always automatically added.
   - `timeout` is the number of milliseconds you are willing to wait before giving
     up.
   - `tracker` lets you [cancel](https://package.elm-lang.org/packages/elm/http/2.0.0/Http#cancel)
@@ -303,8 +309,8 @@ defaultHttpOptions =
     }
 
 
-{-| Sends a Request object over HTTP to a JSON-RPC Server with a default request
-identifier of 1.
+{-| Sends a [Request object](https://www.jsonrpc.org/specification#request_object)
+over HTTP to a JSON-RPC server with a default request identifier of 1.
 
     import JsonRpc
 
@@ -326,7 +332,7 @@ The Request object:
         "id": 1
     }
 
-will be sent over HTTP to the JSON-RPC Server at the endpoint
+will be sent over HTTP to the JSON-RPC server at the endpoint
 `https://eth-goerli.public.blastapi.io`.
 
 -}
