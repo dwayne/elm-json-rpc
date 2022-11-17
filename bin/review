@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-npx elm-review            \
-  "$project/examples/src" \
-  "$project/src"          \
-  "$project/tests"        \
-  "$@"
+cd "$project" && \
+  npx elm-review \
+    "$project/examples/src" \
+    "$project/src"          \
+    "$project/tests"        \
+    "$@"

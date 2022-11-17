@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-elm-format                \
-  "$project/examples/src" \
-  "$project/review/src"   \
-  "$project/src"          \
-  "$project/tests"        \
-  "${@:---yes}"
+cd "$project" && \
+  elm-format                \
+    "$project/examples/src" \
+    "$project/review/src"   \
+    "$project/src"          \
+    "$project/tests"        \
+    "${@:---yes}"
