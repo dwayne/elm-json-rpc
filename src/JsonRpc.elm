@@ -1,5 +1,5 @@
 module JsonRpc exposing
-    ( Request, Params, Param, noParams, positionalParams, keywordParams
+    ( Request, Params, Param, noParams, positionalParams, namedParams
     , send
     , Id, intId, stringId, sendWithId
     , HttpOptions, defaultHttpOptions, sendCustom
@@ -16,7 +16,7 @@ The implementation is guided by the following specifications:
 
 # Construct a request
 
-@docs Request, Params, Param, noParams, positionalParams, keywordParams
+@docs Request, Params, Param, noParams, positionalParams, namedParams
 
 
 # Send a request
@@ -103,7 +103,7 @@ For example, the following:
     import Json.Encode as JE
     import JsonRpc
 
-    JsonRpc.keywordParams
+    JsonRpc.namedParams
         [ ( "apiKey", JE.string "YOUR API KEY"
         , ( "n", JE.int 5 )
         , ( "min", JE.int 1 )
@@ -123,8 +123,8 @@ represents the JSON Object:
     }
 
 -}
-keywordParams : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
-keywordParams required optional =
+namedParams : List ( String, Param ) -> List ( String, Maybe Param ) -> Params
+namedParams required optional =
     Params <| RequestParams.byName required optional
 
 

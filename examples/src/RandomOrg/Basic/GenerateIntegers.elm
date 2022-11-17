@@ -37,7 +37,7 @@ request : String -> Params -> JsonRpc.Request Response
 request apiKey params =
     { method = "generateIntegers"
     , params =
-        JsonRpc.keywordParams
+        JsonRpc.namedParams
             [ ( "apiKey", JE.string apiKey )
             , ( "n", JE.int params.n )
             , ( "min", JE.int params.min )
