@@ -150,8 +150,57 @@ Take a look at `sendCustom`.
 
 ## Handling errors
 
-TODO
+A JSON-RPC request can fail in many ways. Suppose the `currentTime` RPC call
+fails then in our update function we can handle it as follows:
 
-## More examples
+```elm
+import JsonRpc
 
-TODO
+GotCurrentTime (Err error) ->
+  case error of
+      JsonRpc.HttpError httpError ->
+          -- There was an error trying to
+          -- reach the server.
+          ...
+
+      JsonRpc.UnexpectedStatus metadata body ->
+          -- A successful HTTP status code
+          -- other than 200 was returned.
+          ...
+
+      JsonRpc.DecodeError jsonDecodeError ->
+          -- The Response object returned
+          -- by the server was malformed.
+          ...
+
+      JsonRpc.MismatchedIds { requestId, responseId } ->
+          -- The id of the Request object
+          -- is not the same as the id of
+          -- the Response object.
+          ...
+
+      JsonRpc.JsonRpcError { kind, code, message, maybeData, responseId } ->
+          -- The RPC call encountered an error.
+          -- The maybeData field may contain
+          -- detailed error information as
+          -- defined by the server.
+          ...
+```
+
+## Examples
+
+The `examples` directory contains:
+
+- An [Ethereum](https://ethereum.github.io/execution-apis/api-documentation/)
+example based on `eth_chainId` and `eth_getBalance`.
+- A [RandomOrg](https://api.random.org/json-rpc/4/basic) example based on
+`generateIntegers`.
+
+To play with the examples do the following:
+
+```bash
+$ nix-shell
+$ serve-examples
+```
+
+Then, open http://localhost:8000 in your browser and explore!
